@@ -24,3 +24,150 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoldTap Kombat Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { background: radial-gradient(circle, #1e1e1e 0%, #000 100%); color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; user-select: none; }
+        .coin-shadow { filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.4)); }
+        .tap-effect { position: absolute; pointer-events: none; font-weight: bold; font-size: 24px; color: #fbbf24; animation: floatUp 0.8s ease-out forwards; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="flex flex-col items-center h-screen p-4">
+    <div class="w-full grid grid-cols-3 gap-2 mb-6">
+        <div class="card p-2 rounded-lg text-center">
+            <p class="text-[10px] text-gray-400 uppercase">Earn per tap</p>
+            <p class="text-sm font-bold text-yellow-500">+1</p>
+        </div>
+        <div class="card p-2 rounded-lg text-center">
+            <p class="text-[10px] text-gray-400 uppercase">Coins for level</p>
+            <p class="text-sm font-bold">50K</p>
+        </div>
+        <div class="card p-2 rounded-lg text-center">
+            <p class="text-[10px] text-gray-400 uppercase">Profit per hour</p>
+            <p class="text-sm font-bold text-green-500" id="pPH-display">+0</p>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <div class="flex items-center justify-center gap-2 mb-1">
+            <img src="https://cdn-icons-png.flaticon.com/512/11502/11502551.png" class="w-10 h-10">
+            <span class="text-5xl font-black" id="balance">0</span>
+        </div>
+        <p class="text-sm font-medium text-gray-300" id="rank">Bronze Rank 🐹</p>
+    </div>
+
+    <div class="relative flex-grow flex items-center justify-center w-full" id="tap-zone">
+        <div class="coin-shadow rounded-full animate__animated" id="coin-img">
+            <img src="https://cdn-icons-png.flaticon.com/512/11502/11502551.png" class="w-72 h-72 rounded-full cursor-pointer active:scale-95 transition-transform">
+        </div>
+    </div>
+
+    <div class="w-full max-w-md space-y-4 mb-2">
+        <div class="flex justify-between items-end px-2">
+            <div class="flex items-center gap-1">
+                <span class="text-2xl">⚡</span>
+                <span class="font-bold text-xl" id="energy">1000</span>
+                <span class="text-gray-500">/ 1000</span>
+            </div>
+            <button onclick="showMarket()" class="bg-yellow-600 px-4 py-2 rounded-lg font-bold shadow-lg">🚀 Boost / Mining</button>
+        </div>
+        <div class="w-full bg-gray-800 h-4 rounded-full border border-gray-700">
+            <div id="energy-bar" class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-full rounded-full transition-all duration-300" style="width: 100%"></div>
+        </div>
+    </div>
+
+    <div id="market" class="fixed inset-0 bg-black/90 hidden z-50 p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold italic">Mining Cards</h2>
+            <button onclick="hideMarket()" class="text-3xl">&times;</button>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="card p-4 rounded-xl flex flex-col items-center">
+                <p class="font-bold text-blue-400">Hamster CEO</p>
+                <p class="text-xs text-gray-400">+50/h</p>
+                <button onclick="buyCard(500, 50)" class="mt-2 bg-green-600 w-full py-1 rounded-md text-sm">💰 500</button>
+            </div>
+            <div class="card p-4 rounded-xl flex flex-col items-center">
+                <p class="font-bold text-purple-400">IT Team</p>
+                <p class="text-xs text-gray-400">+150/h</p>
+                <button onclick="buyCard(2000, 150)" class="mt-2 bg-green-600 w-full py-1 rounded-md text-sm">💰 2000</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let balance = parseFloat(localStorage.getItem('coins')) || 0;
+        let pph = parseFloat(localStorage.getItem('pph')) || 0;
+        let energy = 1000;
+        const maxEnergy = 1000;
+
+        const tapZone = document.getElementById('tap-zone');
+        const coinImg = document.getElementById('coin-img');
+
+        function updateUI() {
+            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
+            document.getElementById('pPH-display').innerText = `+${pph}/h`;
+            document.getElementById('energy').innerText = energy;
+            document.getElementById('energy-bar').style.width = (energy / maxEnergy * 100) + "%";
+            
+            // Rank System
+            if(balance > 1000000) document.getElementById('rank').innerText = "Grandmaster 👑";
+            else if(balance > 100000) document.getElementById('rank').innerText = "Gold Rank 🐹";
+            else if(balance > 10000) document.getElementById('rank').innerText = "Silver Rank 🐹";
+
+            localStorage.setItem('coins', balance);
+            localStorage.setItem('pph', pph);
+        }
+
+        tapZone.addEventListener('touchstart', (e) => {
+            if (energy > 0) {
+                balance += 1;
+                energy -= 1;
+                createTapEffect(e.touches[0].clientX, e.touches[0].clientY);
+                coinImg.classList.add('animate__pulse');
+                setTimeout(() => coinImg.classList.remove('animate__pulse'), 100);
+                updateUI();
+            }
+        });
+
+        function createTapEffect(x, y) {
+            const el = document.createElement('div');
+            el.className = 'tap-effect';
+            el.innerText = '+1';
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function showMarket() { document.getElementById('market').classList.remove('hidden'); }
+        function hideMarket() { document.getElementById('market').classList.add('hidden'); }
+
+        function buyCard(cost, profit) {
+            if (balance >= cost) {
+                balance -= cost;
+                pph += profit;
+                updateUI();
+            } else { alert("Not enough coins!"); }
+        }
+
+        // Mining & Energy Regen
+        setInterval(() => {
+            balance += (pph / 3600);
+            if (energy < maxEnergy) energy += 2;
+            updateUI();
+        }, 1000);
+
+        updateUI();
+    </script>
+</body>
+    </html>
+    
