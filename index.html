@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GoldTap Game</title>
+    <style>
+        body { background: #000; color: #fff; text-align: center; font-family: sans-serif; overflow: hidden; margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        #balance { font-size: 45px; color: #f1c40f; margin-bottom: 20px; font-weight: bold; }
+        .coin-btn { width: 250px; height: 250px; background: url('https://cdn-icons-png.flaticon.com/512/5021/5021575.png'); background-size: cover; border: none; cursor: pointer; transition: transform 0.1s; outline: none; -webkit-tap-highlight-color: transparent; }
+        .coin-btn:active { transform: scale(0.92); }
+    </style>
+</head>
+<body>
+    <div style="color: #f39c12; font-size: 20px; margin-bottom: 10px;">GOLDEN HARVEST 🌾</div>
+    <div id="balance">0 🪙</div>
+    <button class="coin-btn" onclick="tapCoin()"></button>
+
+    <script>
+        let count = 0;
+        function tapCoin() {
+            count++;
+            document.getElementById('balance').innerText = count + " 🪙";
+        }
+    </script>
+</body>
+</html>
